@@ -1,1 +1,1 @@
-"""Fichiers __init__ pour les modules"""
+"""Fichier __init__ pour l'évaluation"""

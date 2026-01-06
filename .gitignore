@@ -205,3 +205,26 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# BreakHis Dataset
+breakhis.zip
+BreakHis_v1/
+breakhis_200/
+breakhis_*/
+Folds.csv
+
+# Model outputs
+*.keras
+*.h5
+*.weights.h5
+*.pt
+*.pth
+*.onnx
+
+# Logs and results
+logs/
+results/
+VLM/zero_shot_classification/logs/
+VLM/zero_shot_classification/results/
+CNN/breakhis_8classes_classification/logs/
+CNN/breakhis_8classes_classification/models/saved/

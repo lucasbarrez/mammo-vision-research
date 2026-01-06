@@ -1,223 +1,140 @@
-# Zero-Shot Classification avec Vision-Language Models (CLIP/CPLIP)
+# Classification Zero-Shot avec CLIP/CPLIP
 
-> Classification zero-shot de tumeurs mammaires utilisant des modèles vision-langage (CLIP et CPLIP) avec engineering de prompts
+## 📋 Description
 
-[![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.x-orange.svg)](https://pytorch.org/)
+Ce module implémente la classification **zero-shot** d'images histopathologiques du dataset BreakHis en utilisant des modèles Vision-Langage (CLIP/CPLIP).
 
-## Table des matières
+**Cohérence avec le projet CNN**: Ce code réutilise les modules existants du CNN (`data/preprocessing.py`, `config/config.py`, métriques) pour assurer la cohérence des résultats.
 
-- [À propos](#à-propos)
-- [Modèles](#modèles)
-- [Architecture](#architecture)
-- [Installation](#installation)
-- [Utilisation](#utilisation)
-- [Structure du projet](#structure-du-projet)
-
-## À propos
-
-Ce projet explore l'utilisation de modèles vision-langage (VLM) pour la classification zero-shot d'images histopathologiques de cancer du sein. Contrairement aux approches traditionnelles qui nécessitent un entraînement supervisé, les VLM peuvent classifier des images en utilisant uniquement des descriptions textuelles (prompts).
-
-### Objectifs
-
-- **Tester CLIP** pour la classification zero-shot des 8 types de tumeurs
-- **Évaluer CPLIP** (Clinical-CLIP) spécialisé pour l'imagerie médicale
-- **Explorer différentes stratégies de prompting** (simple, descriptif, contextuel)
-- **Comparer les performances** avec les approches CNN supervisées
-- **Analyser l'impact du domain-shift** (CLIP généraliste vs CPLIP médical)
-
-### Caractéristiques principales
-
-✨ Classification zero-shot (sans entraînement)  
-🔬 Modèles spécialisés médical (CPLIP)  
-📝 Multiples stratégies de prompting  
-📊 Évaluation complète et visualisations  
-🔍 Analyse de similarité image-texte  
-
-## Modèles
-
-### CLIP (Contrastive Language-Image Pre-training)
-
-**OpenAI CLIP** est un modèle vision-langage pré-entraîné sur 400M de paires image-texte du web.
-
-- **Architecture**: Vision Transformer (ViT) + Text Transformer
-- **Pré-entraînement**: Données générales (internet)
-- **Forces**: Robustesse, généralisation
-- **Limitations**: Non spécialisé pour le médical
-
-### CPLIP (Clinical Pre-trained Language-Image Pretraining)
-
-**CPLIP** est une variante de CLIP spécialisée pour l'imagerie médicale.
-
-- **Architecture**: Similaire à CLIP
-- **Pré-entraînement**: Données médicales (radiographies, IRM, histopathologie)
-- **Forces**: Meilleure compréhension du vocabulaire médical
-- **Avantages**: Adapté au domaine clinique
-
-## Architecture
-
-### Pipeline Zero-Shot
+## 🏗️ Architecture
 
 ```
-Image histopathologique
-        ↓
-   [Vision Encoder]  ←→  [Text Encoder]  ← Prompts textuels
-        ↓                      ↓
-   Image Features        Text Features
-        ↓                      ↓
-        └─── Similarity ───────┘
-                  ↓
-           Classification
+VLM/zero_shot_classification/
+├── main.py                          # Script principal (style CNN)
+├── config/
+│   └── config.py                    # Configuration VLM
+├── data/
+│   └── dataset_loader.py            # Chargeur réutilisant le code CNN
+├── models/
+│   ├── clip_model.py                # Wrapper CLIP (OpenCLIP)
+│   └── cplip_model.py               # Placeholder pour CPLIP
+├── prompts/
+│   └── prompt_strategies.py         # 5 stratégies de prompting
+├── evaluation/
+│   ├── metrics.py                   # Métriques (réutilise recall_malignant du CNN)
+│   └── visualization.py             # Graphiques
+├── logs/                            # Logs horodatés (comme CNN)
+└── results/                         # Résultats JSON + visualisations
 ```
 
-### Stratégies de Prompting
-
-1. **Simple**: `"A histopathological image of {class_name}"`
-2. **Descriptif**: `"A microscopic image showing {class_name}, a type of breast tumor"`
-3. **Médical**: `"Histopathology slide of {class_name} in breast tissue, {characteristics}"`
-4. **Contextuel**: Descriptions détaillées avec contexte clinique
-
-## Installation
-
-### Prérequis
+## 🚀 Installation
 
 ```bash
-python >= 3.8
-torch >= 2.0
-transformers
-PIL
-numpy
-scikit-learn
-matplotlib
+# Dépendances PyTorch + CLIP
+pip install torch torchvision
+pip install open-clip-torch
+pip install pillow numpy pandas scikit-learn matplotlib seaborn tqdm
 ```
 
-### Installation des dépendances
+## 📊 Utilisation
+
+### Évaluation basique
 
 ```bash
-# Installer les packages
-pip install torch torchvision transformers
-pip install open-clip-torch  # Pour CLIP
-pip install Pillow numpy scikit-learn matplotlib seaborn
-```
-
-## Utilisation
-
-### 1. Configuration
-
-Modifiez les paramètres dans `config/config.py`:
-
-```python
-# Modèle à utiliser
-MODEL_NAME = "clip"  # ou "cplip"
-CLIP_MODEL = "ViT-B/32"
-
-# Stratégie de prompting
-PROMPT_STRATEGY = "descriptive"  # simple, descriptive, medical, contextual
-```
-
-### 2. Lancement de l'évaluation
-
-```bash
+cd VLM/zero_shot_classification
 python main.py
 ```
 
-### 3. Résultats
+Le script va:
+1. ✅ Charger les données (réutilise le `prepare_breakhis_subset` du CNN)
+2. ✅ Charger CLIP (ViT-B/32 par défaut)
+3. ✅ Générer les prompts (stratégie "medical" par défaut)
+4. ✅ Évaluer en zero-shot sur le test set
+5. ✅ Sauvegarder les résultats dans `logs/` et `results/`
 
-Les résultats sont sauvegardés dans `results/`:
-- Matrices de confusion
-- Métriques de classification (accuracy, precision, recall, F1)
-- Visualisations de similarité image-texte
-- Comparaison des stratégies de prompting
+### Configuration
 
-## Structure du projet
+Modifier [config/config.py](config/config.py):
 
-```
-zero_shot_classification/
-│
-├── README.md                    # Ce fichier
-├── main.py                      # Script principal
-├── requirements.txt             # Dépendances Python
-│
-├── config/
-│   └── config.py               # Configuration centrale
-│
-├── models/
-│   ├── __init__.py
-│   ├── clip_model.py           # Wrapper pour CLIP
-│   ├── cplip_model.py          # Wrapper pour CPLIP
-│   └── base_vlm.py             # Classe de base VLM
-│
-├── prompts/
-│   ├── __init__.py
-│   ├── prompt_templates.py     # Templates de prompts
-│   ├── prompt_strategies.py    # Stratégies de génération
-│   └── medical_descriptions.py # Descriptions médicales
-│
-├── data/
-│   ├── __init__.py
-│   ├── dataset_loader.py       # Chargement du dataset BreakHis
-│   └── preprocessing.py        # Prétraitement des images
-│
-├── evaluation/
-│   ├── __init__.py
-│   ├── metrics.py              # Calcul des métriques
-│   ├── visualization.py        # Visualisations
-│   └── comparison.py           # Comparaison des modèles
-│
-├── utils/
-│   ├── __init__.py
-│   ├── file_utils.py           # Utilitaires fichiers
-│   └── logging_utils.py        # Logging
-│
-├── logs/                        # Logs d'exécution
-└── results/                     # Résultats et visualisations
+```python
+VLMConfig.CLIP_MODEL_NAME = "ViT-L/14"  # Changer le modèle CLIP
+VLMConfig.PROMPT_STRATEGY = "ensemble"  # Changer la stratégie
+VLMConfig.DEVICE = "mps"                # Pour Mac M1/M2
 ```
 
-## Expérimentations
+## 🎯 Stratégies de Prompting
 
-### Comparaisons prévues
+| Stratégie | Description | Exemple |
+|-----------|-------------|---------|
+| `simple` | Prompt minimal | "a histopathological image of Ductal Carcinoma" |
+| `descriptive` | Contexte histologique | "microscopy image showing Ductal Carcinoma" |
+| `medical` | Descriptions cliniques | "malignant breast cancer originating in milk ducts" |
+| `contextual` | Contexte diagnostique | "breast cancer histopathology: Ductal Carcinoma" |
+| `ensemble` | Combinaison de toutes | Moyenne de tous les prompts |
 
-1. **CLIP vs CPLIP**: Impact du pré-entraînement médical
-2. **Stratégies de prompts**: Simple vs Descriptif vs Médical
-3. **Versions de CLIP**: ViT-B/32 vs ViT-L/14
-4. **Zero-shot vs Supervised**: Comparaison avec EfficientNet
+## 📈 Métriques
 
-### Métriques
+**Cohérent avec le CNN**: Utilise les mêmes métriques, notamment `recall_malignant` (critique pour le cancer).
 
-- Accuracy globale
-- Precision, Recall, F1-score par classe
-- Recall sur cancers malins (critique pour le diagnostic)
-- Matrice de confusion
-- Courbes ROC et AUC
+- ✅ Accuracy globale
+- ✅ Precision / Recall / F1-Score (macro + par classe)
+- ✅ **Recall sur cancers malins** (métrique clé du projet)
+- ✅ Matrice de confusion
+- ✅ Comparaison des stratégies de prompting
 
-## Références
+## 🔬 Modèles CLIP Disponibles
 
-### Papers
+| Modèle | Params | Résolution | Performance attendue |
+|--------|--------|------------|----------------------|
+| ViT-B/32 | 87M | 224x224 | Baseline rapide |
+| ViT-B/16 | 87M | 224x224 | Meilleur que B/32 |
+| ViT-L/14 | 304M | 224x224 | Meilleure qualité |
+| RN50 | 102M | 224x224 | CNN-based |
+| RN101 | 119M | 224x224 | CNN-based, plus profond |
 
-- **CLIP**: Radford et al. (2021) - "Learning Transferable Visual Models From Natural Language Supervision"
-- **CPLIP**: Zhou et al. (2023) - "Clinical-CLIP: Pre-training Language-Image Models for Medical Image Classification"
+## 🆚 Comparaison avec le CNN
 
-### Liens
+| Approche | Entraînement | Adapté au domaine | Coût |
+|----------|--------------|-------------------|------|
+| **CNN (EfficientNet)** | ✅ Supervisé | ✅ Fine-tuné | High compute |
+| **CLIP (zero-shot)** | ❌ Aucun | ❌ Généraliste | Low compute |
+| **CPLIP (zero-shot)** | ❌ Aucun | 🟡 Pré-entraîné médical | Low compute |
 
-- [OpenAI CLIP](https://github.com/openai/CLIP)
-- [OpenCLIP](https://github.com/mlfoundations/open_clip)
-- [CPLIP Paper](https://arxiv.org/abs/2301.xxxxx)
+**Hypothèse**: Le CNN devrait surpasser CLIP en zero-shot, mais CLIP avec prompting intelligent peut être compétitif.
 
-## État du projet
+## 📝 Format des Logs
 
-- [x] Structure du projet
-- [ ] Implémentation CLIP
-- [ ] Implémentation CPLIP
-- [ ] Génération de prompts
-- [ ] Pipeline d'évaluation
-- [ ] Expérimentations
-- [ ] Analyse des résultats
-- [ ] Rédaction du rapport
+Identique au CNN: `logs/log_YYYYMMDD_HHMMSS.txt`
 
-## Contributeur
+```
+======================================================================
+  CLASSIFICATION ZERO-SHOT - MODÈLES VISION-LANGAGE (CLIP/CPLIP)
+======================================================================
 
-**Alexandre** - Testing CLIP + CPLIP avec prompting
+======================================================================
+ÉTAPE 1: PRÉPARATION DES DONNÉES
+======================================================================
+🏗️ Création du subset BreakHis à 200x...
+...
+```
 
----
+## 🎯 TODO / Roadmap
 
-*Projet de Computer Vision - Analyse d'images mammographiques*
+- [ ] Implémenter CPLIP (attente du modèle)
+- [ ] Tester toutes les stratégies de prompting
+- [ ] Comparer les variantes CLIP (ViT vs ResNet)
+- [ ] Analyser les erreurs (cancers manqués)
+- [ ] Visualisation t-SNE des embeddings
+- [ ] Prompt engineering avancé (CoOp, CoCoOp)
+
+## 👥 Équipe
+
+- **Alexandre** (toi): CLIP/CPLIP zero-shot + prompting
+- **Lina + Lamia**: CNN multiclasse (EfficientNet)
+- **Lucas**: DINO + clustering
+
+## 📚 Références
+
+- CLIP: [OpenAI paper](https://arxiv.org/abs/2103.00020)
+- CPLIP: [Microsoft CPLIP](https://github.com/microsoft/CPLIP)
+- BreakHis: [Dataset paper](https://doi.org/10.1109/TBME.2015.2496264)

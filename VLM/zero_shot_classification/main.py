@@ -1,188 +1,202 @@
 """
 Script principal pour l'évaluation zero-shot avec CLIP/CPLIP
+
+Ce script orchestre le pipeline zero-shot:
+1. Chargement des données (réutilise le code CNN)
+2. Chargement du modèle CLIP
+3. Génération des prompts
+4. Évaluation zero-shot
+5. Visualisations et métriques
+6. Sauvegarde des résultats
+
+Enregistre tous les prints dans un fichier log horodaté (comme le CNN).
 """
 
 import os
 import sys
-import argparse
 from datetime import datetime
+import json
 
-# Configuration
+# Ajouter le chemin vers les modules CNN
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../CNN/breakhis_8classes_classification'))
+
+from config.config import Config as CNNConfig
+from data.preprocessing import prepare_breakhis_subset
+
+# Modules VLM
 from config.config import VLMConfig
-from utils.logging_utils import setup_logger
-from data.dataset_loader import BreakHisDataLoader
+from data.dataset_loader import load_breakhis_for_zeroshot
 from models.clip_model import CLIPZeroShot
 from prompts.prompt_strategies import PromptGenerator
 from evaluation.metrics import Evaluator
 from evaluation.visualization import Visualizer
 
 
-def parse_args():
-    """Parse les arguments de la ligne de commande"""
-    parser = argparse.ArgumentParser(description="Zero-Shot Classification avec CLIP/CPLIP")
+def setup_logger(log_dir=VLMConfig.LOGS_DIR):
+    """
+    Redirige tous les print vers un fichier horodaté dans logs/
+    (Même système que le code CNN)
+    """
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = os.path.join(log_dir, f"log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt")
+    f = open(log_file, "w", encoding='utf-8')
     
-    parser.add_argument("--model", type=str, default="clip", 
-                       choices=["clip", "cplip"],
-                       help="Modèle à utiliser (clip ou cplip)")
+    # Rediriger stdout et stderr
+    original_stdout = sys.stdout
+    original_stderr = sys.stderr
+    sys.stdout = f
+    sys.stderr = f
     
-    parser.add_argument("--clip-variant", type=str, default="ViT-B/32",
-                       choices=["ViT-B/32", "ViT-B/16", "ViT-L/14", "RN50", "RN101"],
-                       help="Variante de CLIP")
-    
-    parser.add_argument("--prompt-strategy", type=str, default="descriptive",
-                       choices=["simple", "descriptive", "medical", "ensemble"],
-                       help="Stratégie de prompting")
-    
-    parser.add_argument("--magnification", type=int, default=200,
-                       choices=[40, 100, 200, 400],
-                       help="Magnification du microscope")
-    
-    parser.add_argument("--batch-size", type=int, default=32,
-                       help="Taille du batch")
-    
-    parser.add_argument("--device", type=str, default="cuda",
-                       choices=["cuda", "cpu"],
-                       help="Device à utiliser")
-    
-    parser.add_argument("--results-dir", type=str, default=None,
-                       help="Répertoire pour sauvegarder les résultats")
-    
-    return parser.parse_args()
+    return f, log_file, original_stdout, original_stderr
 
 
 def main():
-    """Fonction principale"""
+    """Fonction principale - Style cohérent avec le code CNN"""
     
-    # Parse arguments
-    args = parse_args()
+    # Setup logger (même système que CNN)
+    log_file_handle, log_file_path, orig_stdout, orig_stderr = setup_logger()
+    print(f"Log du programme enregistré dans : {log_file_path}\n")
     
-    # Mise à jour de la config avec les arguments
-    VLMConfig.MODEL_TYPE = args.model
-    VLMConfig.CLIP_MODEL_NAME = args.clip_variant
-    VLMConfig.PROMPT_STRATEGY = args.prompt_strategy
-    VLMConfig.MAGNIFICATION = args.magnification
-    VLMConfig.BATCH_SIZE = args.batch_size
-    VLMConfig.DEVICE = args.device
+    print("="*70)
+    print("  CLASSIFICATION ZERO-SHOT - MODÈLES VISION-LANGAGE (CLIP/CPLIP)")
+    print("="*70)
     
-    if args.results_dir:
-        VLMConfig.RESULTS_DIR = args.results_dir
+    # =========================================================================
+    # 1. PRÉPARATION DES DONNÉES (réutilise le code CNN)
+    # =========================================================================
+    print("\n" + "="*70)
+    print("ÉTAPE 1: PRÉPARATION DES DONNÉES")
+    print("="*70)
     
-    # Créer les répertoires nécessaires
-    os.makedirs(VLMConfig.RESULTS_DIR, exist_ok=True)
-    os.makedirs(VLMConfig.LOGS_DIR, exist_ok=True)
+    # Préparer le subset (même fonction que CNN)
+    subset_path = prepare_breakhis_subset(CNNConfig.ROOT_DIR, CNNConfig.SUBSET_DIR)
     
-    # Setup logger
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_file = os.path.join(VLMConfig.LOGS_DIR, f"log_{timestamp}.txt")
-    logger = setup_logger(log_file)
+    # Charger les datasets en réutilisant le code CNN
+    train_ds, val_ds, test_ds = load_breakhis_for_zeroshot(subset_path)
     
-    logger.info("="*80)
-    logger.info("Zero-Shot Classification avec Vision-Language Models")
-    logger.info("="*80)
-    logger.info(f"Modèle: {VLMConfig.MODEL_TYPE}")
-    logger.info(f"Variante CLIP: {VLMConfig.CLIP_MODEL_NAME}")
-    logger.info(f"Stratégie de prompting: {VLMConfig.PROMPT_STRATEGY}")
-    logger.info(f"Magnification: {VLMConfig.MAGNIFICATION}x")
-    logger.info(f"Device: {VLMConfig.DEVICE}")
-    logger.info("="*80)
+    print(f"\n✅ Données chargées:")
+    print(f"  - Train: {len(train_ds)} images")
+    print(f"  - Val:   {len(val_ds)} images")
+    print(f"  - Test:  {len(test_ds)} images")
     
-    # 1. Chargement du dataset
-    logger.info("\n[1/5] Chargement du dataset BreakHis...")
-    data_loader = BreakHisDataLoader(
-        root_dir=VLMConfig.ROOT_DIR,
-        magnification=VLMConfig.MAGNIFICATION,
-        img_size=VLMConfig.IMG_SIZE
+    # =========================================================================
+    # 2. CHARGEMENT DU MODÈLE CLIP
+    # =========================================================================
+    print("\n" + "="*70)
+    print("ÉTAPE 2: CHARGEMENT DU MODÈLE")
+    print("="*70)
+    
+    model = CLIPZeroShot(
+        model_name=VLMConfig.CLIP_MODEL_NAME,
+        device=VLMConfig.DEVICE
     )
-    test_dataset = data_loader.load_test_set()
-    logger.info(f"  ✓ {len(test_dataset)} images chargées")
     
-    # 2. Chargement du modèle
-    logger.info(f"\n[2/5] Chargement du modèle {VLMConfig.MODEL_TYPE}...")
-    if VLMConfig.MODEL_TYPE == "clip":
-        model = CLIPZeroShot(
-            model_name=VLMConfig.CLIP_MODEL_NAME,
-            device=VLMConfig.DEVICE
-        )
-    else:
-        # TODO: Implémenter CPLIP
-        logger.error("CPLIP pas encore implémenté")
-        return
+    # =========================================================================
+    # 3. GÉNÉRATION DES PROMPTS
+    # =========================================================================
+    print("\n" + "="*70)
+    print("ÉTAPE 3: GÉNÉRATION DES PROMPTS")
+    print("="*70)
     
-    logger.info(f"  ✓ Modèle {VLMConfig.CLIP_MODEL_NAME} chargé")
-    
-    # 3. Génération des prompts
-    logger.info(f"\n[3/5] Génération des prompts ({VLMConfig.PROMPT_STRATEGY})...")
     prompt_generator = PromptGenerator(strategy=VLMConfig.PROMPT_STRATEGY)
     class_prompts = prompt_generator.generate_all_class_prompts()
     
-    logger.info(f"  ✓ Prompts générés pour {len(class_prompts)} classes")
-    for class_name, prompts in list(class_prompts.items())[:2]:
-        logger.info(f"    - {class_name}: {len(prompts)} prompt(s)")
-        logger.info(f"      Exemple: '{prompts[0]}'")
+    print(f"\n📝 Stratégie de prompting: {VLMConfig.PROMPT_STRATEGY}")
+    print(f"   Nombre de classes: {len(class_prompts)}")
+    print(f"\n   Exemples de prompts:")
+    for class_name in list(class_prompts.keys())[:2]:
+        prompts = class_prompts[class_name]
+        print(f"\n   - {class_name}:")
+        for i, prompt in enumerate(prompts[:2], 1):
+            print(f"     {i}. \"{prompt}\"")
     
-    # 4. Évaluation zero-shot
-    logger.info("\n[4/5] Évaluation zero-shot sur le dataset de test...")
+    # =========================================================================
+    # 4. ÉVALUATION ZERO-SHOT
+    # =========================================================================
+    print("\n" + "="*70)
+    print("ÉTAPE 4: ÉVALUATION ZERO-SHOT")
+    print("="*70)
+    
     evaluator = Evaluator(model=model, config=VLMConfig)
     results = evaluator.evaluate_zero_shot(
-        dataset=test_dataset,
+        dataset=test_ds,
         class_prompts=class_prompts,
         batch_size=VLMConfig.BATCH_SIZE
     )
     
-    # Afficher les résultats
-    logger.info("\n" + "="*80)
-    logger.info("RÉSULTATS")
-    logger.info("="*80)
-    logger.info(f"Accuracy globale: {results['accuracy']:.2%}")
-    logger.info(f"Precision moyenne: {results['precision_macro']:.2%}")
-    logger.info(f"Recall moyen: {results['recall_macro']:.2%}")
-    logger.info(f"F1-Score moyen: {results['f1_macro']:.2%}")
+    # =========================================================================
+    # 5. VISUALISATIONS
+    # =========================================================================
+    print("\n" + "="*70)
+    print("ÉTAPE 5: GÉNÉRATION DES VISUALISATIONS")
+    print("="*70)
     
-    logger.info("\nRécall par classe:")
-    for class_name, recall in results['recall_per_class'].items():
-        logger.info(f"  - {class_name:20s}: {recall:.2%}")
+    # Créer le répertoire de résultats
+    os.makedirs(VLMConfig.RESULTS_DIR, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     
-    # Recall sur cancers malins
-    malignant_recall = results.get('malignant_recall', 0)
-    logger.info(f"\n⚠️  Recall cancers malins: {malignant_recall:.2%}")
-    
-    # 5. Visualisations
-    logger.info("\n[5/5] Génération des visualisations...")
     visualizer = Visualizer(config=VLMConfig)
     
     # Matrice de confusion
-    viz_path = os.path.join(VLMConfig.RESULTS_DIR, f"confusion_matrix_{timestamp}.png")
+    cm_path = os.path.join(VLMConfig.RESULTS_DIR, f"confusion_matrix_{timestamp}.png")
     visualizer.plot_confusion_matrix(
-        y_true=results['y_true'],
-        y_pred=results['y_pred'],
-        save_path=viz_path
+        results['y_true'],
+        results['y_pred'],
+        save_path=cm_path
     )
-    logger.info(f"  ✓ Matrice de confusion: {viz_path}")
+    print(f"  ✅ Matrice de confusion sauvegardée: {cm_path}")
     
     # Métriques par classe
     metrics_path = os.path.join(VLMConfig.RESULTS_DIR, f"class_metrics_{timestamp}.png")
     visualizer.plot_class_metrics(
-        results=results,
+        results,
         save_path=metrics_path
     )
-    logger.info(f"  ✓ Métriques par classe: {metrics_path}")
+    print(f"  ✅ Métriques par classe sauvegardées: {metrics_path}")
     
-    # Sauvegarder les résultats numériques
+    # Sauvegarder les résultats JSON
     results_path = os.path.join(VLMConfig.RESULTS_DIR, f"results_{timestamp}.json")
-    import json
-    with open(results_path, 'w') as f:
-        # Convertir les arrays numpy en listes pour JSON
-        results_json = {
-            k: v.tolist() if hasattr(v, 'tolist') else v 
-            for k, v in results.items() 
-            if k not in ['y_true', 'y_pred', 'predictions']
-        }
-        json.dump(results_json, f, indent=2)
-    logger.info(f"  ✓ Résultats JSON: {results_path}")
+    results_json = {
+        'model': VLMConfig.CLIP_MODEL_NAME,
+        'prompt_strategy': VLMConfig.PROMPT_STRATEGY,
+        'accuracy': float(results['accuracy']),
+        'precision_macro': float(results['precision_macro']),
+        'recall_macro': float(results['recall_macro']),
+        'f1_macro': float(results['f1_macro']),
+        'recall_malignant': float(results['recall_malignant']),
+        'precision_per_class': {k: float(v) for k, v in results['precision_per_class'].items()},
+        'recall_per_class': {k: float(v) for k, v in results['recall_per_class'].items()},
+        'f1_per_class': {k: float(v) for k, v in results['f1_per_class'].items()}
+    }
     
-    logger.info("\n" + "="*80)
-    logger.info("✅ Évaluation terminée avec succès!")
-    logger.info("="*80)
+    with open(results_path, 'w') as f:
+        json.dump(results_json, f, indent=2)
+    print(f"  ✅ Résultats JSON sauvegardés: {results_path}")
+    
+    # =========================================================================
+    # FIN
+    # =========================================================================
+    print("\n" + "="*70)
+    print("✅ ÉVALUATION ZERO-SHOT TERMINÉE AVEC SUCCÈS")
+    print("="*70)
+    print(f"\nRésultats finaux:")
+    print(f"  - Accuracy:           {results['accuracy']:.4f}")
+    print(f"  - Recall malins:      {results['recall_malignant']:.4f}")
+    print(f"  - F1-Score moyen:     {results['f1_macro']:.4f}")
+    print(f"\nFichiers générés:")
+    print(f"  - Log:                {log_file_path}")
+    print(f"  - Résultats JSON:     {results_path}")
+    print(f"  - Confusion matrix:   {cm_path}")
+    print(f"  - Métriques:          {metrics_path}")
+    print("\n" + "="*70)
+    
+    # Restaurer stdout/stderr et fermer le fichier log
+    sys.stdout = orig_stdout
+    sys.stderr = orig_stderr
+    log_file_handle.close()
+    
+    # Afficher un résumé à l'écran
+    print(f"\n✅ Évaluation terminée! Log: {log_file_path}")
 
 
 if __name__ == "__main__":
