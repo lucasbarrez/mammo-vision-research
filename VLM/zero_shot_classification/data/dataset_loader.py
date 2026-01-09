@@ -8,12 +8,26 @@ import sys
 from PIL import Image
 from typing import Tuple
 import pandas as pd
+import importlib.util
 
-# Ajouter le chemin vers les modules CNN
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../../CNN/breakhis_8classes_classification'))
+# Setup path for CNN modules with importlib to avoid conflicts
+vlm_data_path = os.path.dirname(os.path.abspath(__file__))
+cnn_path = os.path.abspath(os.path.join(vlm_data_path, '../../../CNN/breakhis_8classes_classification'))
 
-from data.preprocessing import create_dataframe, split_data
-from config.config import Config as CNNConfig
+# Load CNN preprocessing module
+cnn_preprocessing_path = os.path.join(cnn_path, "data/preprocessing.py")
+spec = importlib.util.spec_from_file_location("cnn_preprocessing", cnn_preprocessing_path)
+cnn_preprocessing = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(cnn_preprocessing)
+create_dataframe = cnn_preprocessing.create_dataframe
+split_data = cnn_preprocessing.split_data
+
+# Load CNN config module
+cnn_config_path = os.path.join(cnn_path, "config/config.py")
+spec = importlib.util.spec_from_file_location("cnn_config", cnn_config_path)
+cnn_config_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(cnn_config_module)
+CNNConfig = cnn_config_module.Config
 
 
 class BreakHisZeroShotDataset:

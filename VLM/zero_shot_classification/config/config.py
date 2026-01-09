@@ -31,7 +31,7 @@ class VLMConfig:
     # Paramètres CLIP
     MODEL_TYPE = "clip"  # "clip" ou "cplip"
     CLIP_MODEL_NAME = "ViT-B/32"  # Autres: "ViT-L/14", "RN50", "RN101"
-    DEVICE = "cuda"  # ou "cpu", "mps"
+    DEVICE = "cpu"  # Force CPU pour éviter MPS lock issues sur Mac
     
     # Stratégies de prompting
     PROMPT_STRATEGY = "medical"  # "simple", "descriptive", "medical", "contextual", "ensemble"

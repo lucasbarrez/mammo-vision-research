@@ -12,18 +12,42 @@ Ce script orchestre le pipeline zero-shot:
 Enregistre tous les prints dans un fichier log horodaté (comme le CNN).
 """
 
+# CRITICAL: Disable MPS before any torch import to avoid Mac GPU mutex lock
 import os
+os.environ['PYTORCH_MPS_HIGH_WATERMARK_RATIO'] = '0.0'
+os.environ['PYTORCH_ENABLE_MPS_FALLBACK'] = '1'
+
 import sys
 from datetime import datetime
 import json
 
-# Ajouter le chemin vers les modules CNN
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../CNN/breakhis_8classes_classification'))
+# Setup path for VLM modules first
+vlm_path = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, vlm_path)
 
-from config.config import Config as CNNConfig
-from data.preprocessing import prepare_breakhis_subset
+# Setup path for CNN modules
+cnn_path = os.path.abspath(os.path.join(vlm_path, '../../CNN/breakhis_8classes_classification'))
+sys.path.insert(0, cnn_path)
 
-# Modules VLM
+# Change working directory to project root for relative paths
+project_root = os.path.abspath(os.path.join(vlm_path, '../..'))
+os.chdir(project_root)
+
+# Import CNN modules (need to import with explicit module loading to avoid conflicts)
+import importlib.util
+cnn_config_path = os.path.join(cnn_path, "config/config.py")
+spec = importlib.util.spec_from_file_location("cnn_config", cnn_config_path)
+cnn_config_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(cnn_config_module)
+CNNConfig = cnn_config_module.Config
+
+cnn_preprocessing_path = os.path.join(cnn_path, "data/preprocessing.py")
+spec = importlib.util.spec_from_file_location("cnn_preprocessing", cnn_preprocessing_path)
+cnn_preprocessing = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(cnn_preprocessing)
+prepare_breakhis_subset = cnn_preprocessing.prepare_breakhis_subset
+
+# Modules VLM (import after path setup)
 from config.config import VLMConfig
 from data.dataset_loader import load_breakhis_for_zeroshot
 from models.clip_model import CLIPZeroShot
