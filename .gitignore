@@ -229,6 +229,4 @@ VLM/zero_shot_classification/results/
 CNN/breakhis_8classes_classification/logs/
 CNN/breakhis_8classes_classification/models/saved/
 
-VLM/cplip_repo/
-VLM/cplip_deps/
-VLM/cplip_failed/
+
