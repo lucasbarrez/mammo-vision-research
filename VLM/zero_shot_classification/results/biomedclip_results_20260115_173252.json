@@ -1,0 +1,38 @@
+{
+  "model": "BiomedCLIP (ViT-B-16, manual load)",
+  "accuracy": 0.0594059405940594,
+  "precision_macro": 0.007462686567164179,
+  "recall_macro": 0.11538461538461539,
+  "f1_macro": 0.014018691588785047,
+  "recall_malignant": 0.08633093525179857,
+  "precision_per_class": {
+    "Adenosis": 0.0,
+    "Fibroadenoma": 0.0,
+    "Tubular Adenoma": 0.0,
+    "Phyllodes Tumor": 0.0,
+    "Ductal Carcinoma": 0.0,
+    "Lobular Carcinoma": 0.0,
+    "Mucinous Carcinoma": 0.0,
+    "Papillary Carcinoma": 0.05970149253731343
+  },
+  "recall_per_class": {
+    "Adenosis": 0.0,
+    "Fibroadenoma": 0.0,
+    "Tubular Adenoma": 0.0,
+    "Phyllodes Tumor": 0.0,
+    "Ductal Carcinoma": 0.0,
+    "Lobular Carcinoma": 0.0,
+    "Mucinous Carcinoma": 0.0,
+    "Papillary Carcinoma": 0.9230769230769231
+  },
+  "f1_per_class": {
+    "Adenosis": 0.0,
+    "Fibroadenoma": 0.0,
+    "Tubular Adenoma": 0.0,
+    "Phyllodes Tumor": 0.0,
+    "Ductal Carcinoma": 0.0,
+    "Lobular Carcinoma": 0.0,
+    "Mucinous Carcinoma": 0.0,
+    "Papillary Carcinoma": 0.11214953271028037
+  }
+}

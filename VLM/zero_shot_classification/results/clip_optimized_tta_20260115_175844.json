@@ -1,0 +1,44 @@
+{
+  "model": "CLIP ViT-B-32 + TTA",
+  "tta_augmentations": 5,
+  "prompt_strategy": "medical",
+  "accuracy": 0.16831683168316833,
+  "precision_macro": 0.0702901650350862,
+  "recall_macro": 0.11092171717171717,
+  "f1_macro": 0.06972544198571595,
+  "recall_malignant": 0.2302158273381295,
+  "improvement_vs_baseline": {
+    "accuracy_pct": 13.344667800113358,
+    "recall_malignant_pct": 23.044269020913692
+  },
+  "precision_per_class": {
+    "Adenosis": 0.0,
+    "Fibroadenoma": 0.0,
+    "Tubular Adenoma": 0.0,
+    "Phyllodes Tumor": 0.058823529411764705,
+    "Ductal Carcinoma": 0.4107142857142857,
+    "Lobular Carcinoma": 0.0,
+    "Mucinous Carcinoma": 0.09278350515463918,
+    "Papillary Carcinoma": 0.0
+  },
+  "recall_per_class": {
+    "Adenosis": 0.0,
+    "Fibroadenoma": 0.0,
+    "Tubular Adenoma": 0.0,
+    "Phyllodes Tumor": 0.18181818181818182,
+    "Ductal Carcinoma": 0.25555555555555554,
+    "Lobular Carcinoma": 0.0,
+    "Mucinous Carcinoma": 0.45,
+    "Papillary Carcinoma": 0.0
+  },
+  "f1_per_class": {
+    "Adenosis": 0.0,
+    "Fibroadenoma": 0.0,
+    "Tubular Adenoma": 0.0,
+    "Phyllodes Tumor": 0.08888888888888889,
+    "Ductal Carcinoma": 0.3150684931506849,
+    "Lobular Carcinoma": 0.0,
+    "Mucinous Carcinoma": 0.15384615384615385,
+    "Papillary Carcinoma": 0.0
+  }
+}

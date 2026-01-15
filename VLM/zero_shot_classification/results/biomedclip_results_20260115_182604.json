@@ -1,0 +1,8 @@
+{
+  "model": "BiomedCLIP (microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224)",
+  "accuracy": 0.28217821782178215,
+  "precision_macro": 0.17342038539553753,
+  "recall_macro": 0.16256052974802976,
+  "f1_macro": 0.15560474111701625,
+  "recall_malignant": 0.37410071942446044
+}

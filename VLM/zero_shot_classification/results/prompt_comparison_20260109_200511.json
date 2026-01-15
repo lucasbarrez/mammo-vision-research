@@ -1,0 +1,37 @@
+{
+  "simple": {
+    "accuracy": 0.07425742574257425,
+    "precision_macro": 0.020551378446115286,
+    "recall_macro": 0.07804232804232804,
+    "f1_macro": 0.031676136363636365,
+    "recall_malignant": 0.0
+  },
+  "descriptive": {
+    "accuracy": 0.07425742574257425,
+    "precision_macro": 0.08460127201565558,
+    "recall_macro": 0.08110309829059828,
+    "f1_macro": 0.03895266658131576,
+    "recall_malignant": 0.04316546762589928
+  },
+  "medical": {
+    "accuracy": 0.1485148514851485,
+    "precision_macro": 0.07701286116983792,
+    "recall_macro": 0.11559343434343435,
+    "f1_macro": 0.07070467537006066,
+    "recall_malignant": 0.18705035971223022
+  },
+  "contextual": {
+    "accuracy": 0.0891089108910891,
+    "precision_macro": 0.08860584047845876,
+    "recall_macro": 0.18189611314611312,
+    "f1_macro": 0.09450818789054083,
+    "recall_malignant": 0.02158273381294964
+  },
+  "ensemble": {
+    "accuracy": 0.0594059405940594,
+    "precision_macro": 0.034104199893673574,
+    "recall_macro": 0.0836563899063899,
+    "f1_macro": 0.04685151079164837,
+    "recall_malignant": 0.014388489208633094
+  }
+}
