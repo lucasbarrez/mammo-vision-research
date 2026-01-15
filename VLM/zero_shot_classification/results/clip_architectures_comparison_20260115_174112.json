@@ -1,0 +1,18 @@
+{
+  "ViT-B-32": {
+    "model": "ViT-B-32",
+    "accuracy": 0.1485148514851485,
+    "precision_macro": 0.07701286116983792,
+    "recall_macro": 0.11559343434343435,
+    "f1_macro": 0.07070467537006066,
+    "recall_malignant": 0.18705035971223022
+  },
+  "ViT-L-14": {
+    "model": "ViT-L-14",
+    "accuracy": 0.054455445544554455,
+    "precision_macro": 0.014679291968024363,
+    "recall_macro": 0.0957977207977208,
+    "f1_macro": 0.022328629032258067,
+    "recall_malignant": 0.06474820143884892
+  }
+}

@@ -1,0 +1,90 @@
+[
+  {
+    "name": "temp=1.0",
+    "accuracy": 0.1485148514851485,
+    "recall_malignant": 0.18705035971223022,
+    "f1_macro": 0.07070467537006066,
+    "precision_macro": 0.07701286116983792,
+    "recall_macro": 0.11559343434343435
+  },
+  {
+    "name": "temp=10.0",
+    "accuracy": 0.1485148514851485,
+    "recall_malignant": 0.18705035971223022,
+    "f1_macro": 0.07070467537006066,
+    "precision_macro": 0.07701286116983792,
+    "recall_macro": 0.11559343434343435
+  },
+  {
+    "name": "temp=50.0",
+    "accuracy": 0.1485148514851485,
+    "recall_malignant": 0.18705035971223022,
+    "f1_macro": 0.07070467537006066,
+    "precision_macro": 0.07701286116983792,
+    "recall_macro": 0.11559343434343435
+  },
+  {
+    "name": "temp=100.0",
+    "accuracy": 0.1485148514851485,
+    "recall_malignant": 0.18705035971223022,
+    "f1_macro": 0.07070467537006066,
+    "precision_macro": 0.07701286116983792,
+    "recall_macro": 0.11559343434343435
+  },
+  {
+    "name": "temp=200.0",
+    "accuracy": 0.1485148514851485,
+    "recall_malignant": 0.18705035971223022,
+    "f1_macro": 0.07070467537006066,
+    "precision_macro": 0.07701286116983792,
+    "recall_macro": 0.11559343434343435
+  },
+  {
+    "name": "strat_medical_baseline",
+    "accuracy": 0.1485148514851485,
+    "recall_malignant": 0.18705035971223022,
+    "f1_macro": 0.07070467537006066,
+    "precision_macro": 0.07701286116983792,
+    "recall_macro": 0.11559343434343435
+  },
+  {
+    "name": "strat_cytology_enriched",
+    "accuracy": 0.1188118811881188,
+    "recall_malignant": 0.12949640287769784,
+    "f1_macro": 0.07398755424637009,
+    "precision_macro": 0.11946169772256728,
+    "recall_macro": 0.08763227513227513
+  },
+  {
+    "name": "strat_short_direct",
+    "accuracy": 0.0594059405940594,
+    "recall_malignant": 0.007194244604316547,
+    "f1_macro": 0.034297367445309604,
+    "precision_macro": 0.060096731554914684,
+    "recall_macro": 0.11421356421356421
+  },
+  {
+    "name": "strat_breakhis_explicit",
+    "accuracy": 0.07920792079207921,
+    "recall_malignant": 0.02877697841726619,
+    "f1_macro": 0.05113770685579196,
+    "precision_macro": 0.038817663817663814,
+    "recall_macro": 0.08915343915343915
+  },
+  {
+    "name": "agg_mean",
+    "accuracy": 0.1485148514851485,
+    "recall_malignant": 0.18705035971223022,
+    "f1_macro": 0.07070467537006066,
+    "precision_macro": 0.07701286116983792,
+    "recall_macro": 0.11559343434343435
+  },
+  {
+    "name": "agg_max",
+    "accuracy": 0.0594059405940594,
+    "recall_malignant": 0.02158273381294964,
+    "f1_macro": 0.037522313751821953,
+    "precision_macro": 0.04220793374019181,
+    "recall_macro": 0.11741372053872054
+  }
+]

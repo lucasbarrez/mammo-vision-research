@@ -1,0 +1,12 @@
+{
+  "model": "PLIP (vinid/plip)",
+  "accuracy": 0.06930693069306931,
+  "precision_macro": 0.03621031746031746,
+  "recall_macro": 0.06931818181818182,
+  "f1_macro": 0.02698123044838373,
+  "recall_malignant": 0.06474820143884892,
+  "comparison": {
+    "clip_tta_accuracy": 0.1683,
+    "clip_tta_recall_malignant": 0.2302
+  }
+}
