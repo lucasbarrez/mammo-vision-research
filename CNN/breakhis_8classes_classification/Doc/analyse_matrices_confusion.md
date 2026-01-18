@@ -1,12 +1,5 @@
-# 🚨 COMPARAISON CORRIGÉE : CNN vs ViT (Analyse des Matrices de Confusion)
+# COMPARAISON : CNN vs ViT (Analyse des Matrices de Confusion) COMPLETER AVEC CELLE DE HYBRID
 
-## ⚠️ DÉCOUVERTE CRITIQUE
-
-Les métriques initiales étaient **TROMPEUSES**. L'analyse des matrices de confusion révèle que :
-- **EfficientNet est bien meilleur que prévu** (54.95% accuracy réelle vs 63.37% rapportée)
-- **ViT est PIRE que catastrophique** (44.55% confirmé, mais ignore 6 classes sur 8!)
-
----
 
 ## 📊 RÉSULTATS RÉELS (Test Set, 202 images)
 
@@ -46,7 +39,7 @@ ViT:          60.31% (79/131 cancers détectés)
 
 ## 🚨 LE VRAI PROBLÈME DU ViT
 
-### Effondrement Catastrophique
+### Effondrement 
 
 Le ViT ne prédit que **2 classes sur 8** :
 
@@ -132,7 +125,7 @@ Entropie : **2.734/3.0** = Prédictions bien distribuées sur 8 classes
 | Détectés | 8 | **0** ❌ |
 | **Recall** | 53.3% | **0.0%** |
 
-❌ **ViT catastrophique** - confond TOUS les Lobular avec Ductal
+❌ **ViT mauvais** - confond TOUS les Lobular avec Ductal
 
 ### Mucinous Carcinoma
 
@@ -191,7 +184,7 @@ Le Mucinous a des caractéristiques visuelles ambiguës que le CNN peine à capt
 | **EfficientNet** | Équilibré | Détecte toutes les classes | Faible sur Mucinous |
 | **ViT** | Ultra-spécialisé | Excellent sur Ductal | Ignore 6 classes |
 
-**En médecine** : Mieux vaut un modèle **équilibré** qu'un modèle **spécialisé** sur 1 classe.
+**En médecine** : Mieux vaut un modèle **équilibré** qu'un modèle **spécialisé** sur 1 classe. **A CONFIRMER**
 
 ---
 
@@ -275,7 +268,8 @@ ViT:          1.165 ❌ Prédictions déséquilibrées (2 classes dominant)
 
 ### 🥇 Hybride recommandé
 
-**À confirmer** : Vérifier que l'hybride détecte bien toutes les classes et n'hérite pas des faiblesses du ViT.
+**COMPLETER**
+
 
 ---
 
