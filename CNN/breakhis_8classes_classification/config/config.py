@@ -2,8 +2,8 @@
 
 class Config:
     # Chemins
-    ROOT_DIR = "/Users/lamialadraa/Desktop/S9/CV and deep learning/Projet/BreaKHis_v1"
-    SUBSET_DIR = "/Users/lamialadraa/Desktop/S9/CV and deep learning/Projet/breakhis_200"
+    ROOT_DIR = "./BreaKHis_v1"
+    SUBSET_DIR = "./breakhis_200"
     MODEL_SAVE_PATH = "./breakhis_8classes_classification/models/saved/"
     LOG_DIR = "./breakhis_8classes_classification/logs/"
     
