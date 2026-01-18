@@ -8,8 +8,8 @@ class Config:
     LOG_DIR = "./breakhis_8classes_classification/logs/"
     
     # ========== CHOIX DU MODÈLE ==========
-    MODEL_TYPE = "vit_keras"      # Pour ViT pur
-    # MODEL_TYPE = "hybrid"       # Pour CNN+ViT
+    # MODEL_TYPE = "vit_keras"      # Pour ViT pur
+    MODEL_TYPE = "hybrid"       # Pour CNN+ViT
     # MODEL_TYPE = "medical_vit"  # Pour ViT médical
     # MODEL_TYPE = "efficientnet" # Pour revenir à EfficientNet
     
